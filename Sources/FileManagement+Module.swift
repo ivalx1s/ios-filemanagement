@@ -1,4 +1,7 @@
-import Foundation
+@_exported import Perdux
+@_exported import Logger
+@_exported import SwiftPlus
+@_exported import FoundationPlus
 
 public enum FileManagement {
     public enum Data {

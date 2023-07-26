@@ -1,15 +1,22 @@
 import Foundation
 
+public protocol IFileManagementErrorHandler {
+    func send(_ err: Error) async
+}
+
 public protocol IFileManagementSaga: PerduxSaga {}
 
 extension FileManagement.Business {
     public actor Saga {
         private let fileService: IFileManagementService
+        private let errorHandler: IFileManagementErrorHandler
 
         public init(
-            fileService: IFileManagementService
+            fileService: IFileManagementService,
+            errorHandler: IFileManagementErrorHandler
         ) {
             self.fileService = fileService
+            self.errorHandler = errorHandler
         }
     }
 }
@@ -33,7 +40,7 @@ extension FileManagement.Business.Saga {
                 FileManagement.Business.Action.fileLoadSucceed(remoteUrl: url, localUrl: localUrl)
             }
         case let .failure(err):
-            log(err)
+            await errorHandler.send(err)
             await actions(.concurrently) {
                 FileManagement.Business.Action.fileLoadFailed(remoteUrl: url)
             }
