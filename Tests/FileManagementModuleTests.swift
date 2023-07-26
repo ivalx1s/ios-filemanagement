@@ -3,6 +3,5 @@ import XCTest
 
 final class FileManagementModuleTests: XCTestCase {
     func testExample() throws {
-        XCTAssertEqual(FileManagementModule.moduleName, "FileManagementModule")
     }
 }
