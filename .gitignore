@@ -10,3 +10,5 @@ DerivedData/
 *.entitlements
 .swiftpm
 .gitrelease
+
+Package.resolved

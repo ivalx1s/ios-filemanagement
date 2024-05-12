@@ -3,7 +3,8 @@ import Foundation
 public protocol IFileManagementService {
     func getFileContent(
         from remoteUrl: FileManagement.Business.Model.RemoteURL,
-        with cachePolicy: FileManagement.Business.Model.CachePolicy
+        with cachePolicy: FileManagement.Business.Model.CachePolicy,
+        apiProtected: Bool
     ) async -> Result<FileManagement.Business.Model.LocalURL, FileManagement.Business.Err>
 }
 
@@ -29,75 +30,75 @@ extension FileManagement.Business {
 }
 
 extension FileManagement.Business.Service: IFileManagementService {
-    public func getFileContent(from remoteUrl: RemoteURL, with cachePolicy: CachePolicy) async -> Result<LocalURL, Err> {
+    public func getFileContent(from remoteUrl: RemoteURL, with cachePolicy: CachePolicy, apiProtected: Bool) async -> Result<LocalURL, Err> {
         switch cachePolicy {
         case .never:
-            return await obtainWithNeverCachePolicy(from: remoteUrl)
+            return await obtainWithNeverCachePolicy(from: remoteUrl, apiProtected: apiProtected)
 
         case let .lazy(cadence):
-            return await obtainWithLazyCachePolicy(from: remoteUrl, cadence: cadence)
+            return await obtainWithLazyCachePolicy(from: remoteUrl, cadence: cadence, apiProtected: apiProtected)
 
         case let .required(cadence):
-            return await obtainWithRequiredCachePolicy(from: remoteUrl, cadence: cadence)
+            return await obtainWithRequiredCachePolicy(from: remoteUrl, cadence: cadence, apiProtected: apiProtected)
 
         case .always:
-            return await obtainWithAlwaysCachePolicy(from: remoteUrl)
+            return await obtainWithAlwaysCachePolicy(from: remoteUrl, apiProtected: apiProtected)
         }
     }
 }
 
 extension FileManagement.Business.Service {
-    private func obtainWithRequiredCachePolicy(from remoteUrl: RemoteURL, cadence: CachePolicy.PolicyCadence) async -> Result<LocalURL, Err> {
+    private func obtainWithRequiredCachePolicy(from remoteUrl: RemoteURL, cadence: CachePolicy.PolicyCadence, apiProtected: Bool) async -> Result<LocalURL, Err> {
         switch await fetchFromLocal(from: remoteUrl) {
         case let .some(localUrl):
             switch fileManager.getFileDate(url: localUrl) {
             case let .some(date):
                 switch isExpired(fileDate: date, currentDate: .now, cadence: cadence) {
                 case true:
-                    return await fetchFileFromRemote(from: remoteUrl)
+                    return await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected)
                 case false:
                     return .success(localUrl)
                 }
 
             case .none:
-                return await fetchFileFromRemote(from: remoteUrl)
+                return await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected)
             }
         case .none:
-            return await fetchFileFromRemote(from: remoteUrl)
+            return await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected)
         }
     }
 
-    private func obtainWithLazyCachePolicy(from remoteUrl: RemoteURL, cadence: CachePolicy.PolicyCadence) async -> Result<LocalURL, Err> {
+    private func obtainWithLazyCachePolicy(from remoteUrl: RemoteURL, cadence: CachePolicy.PolicyCadence, apiProtected: Bool) async -> Result<LocalURL, Err> {
         switch await fetchFromLocal(from: remoteUrl) {
         case let .some(localUrl):
             switch fileManager.getFileDate(url: localUrl) {
             case let .some(date):
                 switch isExpired(fileDate: date, currentDate: .now, cadence: cadence) {
                 case true:
-                    Task { await fetchFileFromRemote(from: remoteUrl) }
+                    Task { await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected) }
                 case false:
                     break
                 }
                 return .success(localUrl)
             case .none:
-                Task { await fetchFileFromRemote(from: remoteUrl) }
+                Task { await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected) }
                 return .success(localUrl)
             }
         case .none:
-            return await fetchFileFromRemote(from: remoteUrl)
+            return await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected)
         }
     }
 
-    private func obtainWithNeverCachePolicy(from remoteUrl: RemoteURL) async -> Result<LocalURL, Err> {
-        await fetchFileFromRemote(from: remoteUrl)
+    private func obtainWithNeverCachePolicy(from remoteUrl: RemoteURL, apiProtected: Bool) async -> Result<LocalURL, Err> {
+        await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected)
     }
 
-    private func obtainWithAlwaysCachePolicy(from remoteUrl: RemoteURL) async -> Result<LocalURL, Err> {
+    private func obtainWithAlwaysCachePolicy(from remoteUrl: RemoteURL, apiProtected: Bool) async -> Result<LocalURL, Err> {
         switch await fetchFromLocal(from: remoteUrl) {
         case let .some(localUrl):
             return .success(localUrl)
         case .none:
-            return await fetchFileFromRemote(from: remoteUrl)
+            return await fetchFileFromRemote(from: remoteUrl, apiProtected: apiProtected)
         }
     }
 
@@ -129,8 +130,12 @@ extension FileManagement.Business.Service {
         }
     }
 
-    private func fetchFileFromRemote(from remoteUrl: RemoteURL) async -> Result<LocalURL, Err> {
-        switch await fetcher.loadFile(by: remoteUrl) {
+    private func fetchFileFromRemote(from remoteUrl: RemoteURL, apiProtected: Bool) async -> Result<LocalURL, Err> {
+        async let result = apiProtected
+            ? fetcher.loadProtectedFile(from: remoteUrl)
+            : fetcher.loadUnprotectedFile(from: remoteUrl)
+
+        switch await result{
         case let .success(data):
             switch fileManager.createOrReplace(data: data, fileNameWithExtension: remoteUrl.asFileName, destination: cacheDestination) {
             case let .success(url): return .success(url)

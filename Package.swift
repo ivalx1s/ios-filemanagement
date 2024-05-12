@@ -13,17 +13,17 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "git@gitlab.services.mts.ru:membrana-ios/darwin-perdux.git", from: "3.3.1"),
-        .package(url: "git@gitlab.services.mts.ru:membrana-ios/darwin-restclient.git", from: "0.10.0"),
-        .package(url: "git@gitlab.services.mts.ru:membrana-ios/darwin-foundationplus.git", from: "2.0.0"),
-        .package(url: "git@gitlab.services.mts.ru:membrana-ios/swift-stdlibplus.git", from: "1.0.0"),
+        .package(url: "https://github.com/ivalx1s/darwin-relux.git", .upToNextMajor(from: "4.0.0")),
+        .package(url: "https://github.com/ivalx1s/darwin-httpclient.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/ivalx1s/darwin-foundationplus.git", .upToNextMajor(from: "2.0.0")),
+        .package(url: "https://github.com/ivalx1s/swift-stdlibplus.git", .upToNextMajor(from: "1.0.0"))
     ],
     targets: [
         .target(
             name: "FileManagementModule",
             dependencies: [
-                .product(name: "Perdux", package: "darwin-perdux"),
-                .product(name: "RestClient", package: "darwin-restclient"),
+                .product(name: "Relux", package: "darwin-relux"),
+                .product(name: "HttpClient", package: "darwin-httpclient"),
                 .product(name: "FoundationPlus", package: "darwin-foundationplus"),
                 .product(name: "SwiftPlus", package: "swift-stdlibplus"),
             ],

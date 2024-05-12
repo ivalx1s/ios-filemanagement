@@ -1,8 +1,9 @@
 import Foundation
+import Relux
 
 extension FileManagement.UI {
     @MainActor
-    public class ViewState: PerduxViewState {
+    public class ViewState: ReluxViewState {
         public typealias RemoteURL = FileManagement.Business.Model.RemoteURL
         public typealias LocalURL = FileManagement.Business.Model.LocalURL
 

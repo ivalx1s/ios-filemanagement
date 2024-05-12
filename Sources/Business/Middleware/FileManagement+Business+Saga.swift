@@ -1,10 +1,7 @@
 import Foundation
+import Relux
 
-public protocol IFileManagementErrorHandler {
-    func send(_ err: Error) async
-}
-
-public protocol IFileManagementSaga: PerduxSaga {}
+public protocol IFileManagementSaga: ReluxSaga {}
 
 extension FileManagement.Business {
     public actor Saga {
@@ -22,10 +19,12 @@ extension FileManagement.Business {
 }
 
 extension FileManagement.Business.Saga: IFileManagementSaga {
-    public func apply(_ effect: PerduxEffect) async {
+    public func apply(_ effect: ReluxEffect) async {
         switch effect as? FileManagement.Business.Effect {
-        case let .obtainFile(fromUrl, cachePolicy):
-            await obtainFile(from: fromUrl, with: cachePolicy)
+        case let .obtainUnprotectedFile(fromUrl, cachePolicy):
+            await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: false)
+        case let .obtainProtectedFile(fromUrl, cachePolicy):
+            await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: true)
         case .none:
             break
         }
@@ -33,8 +32,8 @@ extension FileManagement.Business.Saga: IFileManagementSaga {
 }
 
 extension FileManagement.Business.Saga {
-    private func obtainFile(from url: URL, with policy: FileManagement.Business.Model.CachePolicy) async {
-        switch await fileService.getFileContent(from: url, with: policy) {
+    private func obtainFile(from url: URL, with policy: FileManagement.Business.Model.CachePolicy, apiProtected : Bool) async {
+        switch await fileService.getFileContent(from: url, with: policy, apiProtected: apiProtected) {
         case let .success(localUrl):
             await action {
                 FileManagement.Business.Action.fileLoadSucceed(remoteUrl: url, localUrl: localUrl)
