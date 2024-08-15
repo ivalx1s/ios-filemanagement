@@ -24,22 +24,34 @@ extension FileManagement.UI {
         }
 
         public var body: some View {
-            AsyncImage(url: fileState.localFiles[url]) { phase in
+            content
+                .task { await loadImage() }
+        }
+
+        @ViewBuilder
+        private var content: some View {
+            switch fileState.localFiles[url] {
+                case .none: asyncImg(url: .none)
+                case .failed: errorStateView()
+                case let .loaded(url): asyncImg(url: url)
+            }
+        }
+
+        private func asyncImg(url: URL?) -> some View {
+            AsyncImage(url: url) { phase in
                 switch phase {
-                case .empty: placeholderView()
-                case let .success(img): img.resizable()
-                case .failure: errorStateView()
-                @unknown default: ProgressView()
+                    case .empty: placeholderView()
+                    case let .success(img): img.resizable()
+                    case .failure: errorStateView()
+                    @unknown default: ProgressView()
                 }
             }
-                .aspectRatio(contentMode: .fit)
-                .task(loadImage)
+            .aspectRatio(contentMode: .fit)
         }
     }
 }
 
 extension FileManagement.UI.ImageContainer {
-    @Sendable
     private func loadImage() async {
         if fileState.localFiles[url].isNil {
             switch protectionType {

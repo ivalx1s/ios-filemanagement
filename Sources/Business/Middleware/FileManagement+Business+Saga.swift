@@ -41,7 +41,7 @@ extension FileManagement.Business.Saga {
         case let .failure(err):
             await errorHandler.send(err)
             await actions(.concurrently) {
-                FileManagement.Business.Action.fileLoadFailed(remoteUrl: url)
+                FileManagement.Business.Action.fileLoadFailed(remoteUrl: url, err: err)
             }
         }
     }

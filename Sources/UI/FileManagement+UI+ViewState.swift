@@ -6,8 +6,9 @@ extension FileManagement.UI {
     public class ViewState: ReluxViewState {
         public typealias RemoteURL = FileManagement.Business.Model.RemoteURL
         public typealias LocalURL = FileManagement.Business.Model.LocalURL
+        public typealias LoadingState = FileManagement.Business.Model.LoadingState
 
-        @Published public var localFiles: [RemoteURL: LocalURL] = [:]
+        @Published public var localFiles: [RemoteURL: LoadingState] = [:]
 
         public init(fileState: FileManagement.Business.State) {
             Task { await initPipelines(fileState: fileState) }

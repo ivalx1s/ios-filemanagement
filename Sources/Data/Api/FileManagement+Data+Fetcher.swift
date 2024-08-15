@@ -41,18 +41,18 @@ extension FileManagement.Data {
 
         public func loadProtectedFile(from url: URL) async -> Result<Data, Err> {
             switch await headersProvider.apiHeaders() {
-            case let .success(headers):
-                switch await client.get(url: url, headers: headers, fileID: #fileID, functionName: #function, lineNumber: #line) {
-                case let .success(response):
-                    switch response.data {
-                    case let .some(data): return .success(data)
-                    case .none: return .failure(.loadFailed_noData)
+                case let .success(headers):
+                    switch await client.get(url: url, headers: headers, fileID: #fileID, functionName: #function, lineNumber: #line) {
+                        case let .success(response):
+                            switch response.data {
+                            case let .some(data): return .success(data)
+                            case .none: return .failure(.loadFailed_noData)
+                            }
+                        case let .failure(err):
+                            return .failure(.loadFailed(cause: err))
                     }
                 case let .failure(err):
-                    return .failure(.loadFailed(cause: err))
-                }
-            case let .failure(err):
-                return .failure(err)
+                    return .failure(err)
             }
         }
     }

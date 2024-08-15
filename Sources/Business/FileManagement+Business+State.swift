@@ -3,7 +3,7 @@ import Relux
 
 extension FileManagement.Business {
     public actor State: ReluxState {
-        @Published public var localFiles: [Model.RemoteURL: Model.LocalURL] = [:]
+        @Published public var localFiles: [Model.RemoteURL: Model.LoadingState] = [:]
 
         public init() {}
 
