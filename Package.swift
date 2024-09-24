@@ -13,10 +13,10 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/ivalx1s/darwin-relux.git", .upToNextMajor(from: "4.0.0")),
-        .package(url: "https://github.com/ivalx1s/darwin-httpclient.git", .upToNextMajor(from: "3.0.0")),
-        .package(url: "https://github.com/ivalx1s/darwin-foundationplus.git", .upToNextMajor(from: "2.0.0")),
-        .package(url: "https://github.com/ivalx1s/swift-stdlibplus.git", .upToNextMajor(from: "1.0.0"))
+        .package(url: "https://github.com/ivalx1s/darwin-relux.git", .upToNextMajor(from: "5.0.1")),
+        .package(url: "https://github.com/ivalx1s/darwin-httpclient.git", .upToNextMajor(from: "3.1.1")),
+        .package(url: "https://github.com/ivalx1s/darwin-foundationplus.git", .upToNextMajor(from: "2.5.0")),
+        .package(url: "https://github.com/ivalx1s/swift-stdlibplus.git", .upToNextMajor(from: "1.2.1"))
     ],
     targets: [
         .target(

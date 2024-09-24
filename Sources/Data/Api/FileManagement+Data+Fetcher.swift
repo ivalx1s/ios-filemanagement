@@ -1,22 +1,24 @@
 import Foundation
 import HttpClient
 
-public protocol IFileManagementFetcher {
-    func loadUnprotectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
-    func loadProtectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
+extension FileManagement.Data {
+    public protocol IFetcher {
+        func loadUnprotectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
+        func loadProtectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
+    }
 }
 
 extension FileManagement.Data {
-    public actor Fetcher: IFileManagementFetcher {
+    public actor Fetcher: FileManagement.Data.IFetcher {
         public typealias Err = FileManagement.Business.Err
         private let client: IRpcClient
-        private let headersProvider: IFileManagementApiHeadersProvider
+        private let headersProvider: FileManagement.Data.IApiHeadersProvider
         private let encoder: JSONEncoder = .init()
         private let decoder: JSONDecoder = .init()
 
         public init(
             client: IRpcClient,
-            headersProvider: IFileManagementApiHeadersProvider
+            headersProvider: FileManagement.Data.IApiHeadersProvider
         ) {
             self.client = client
             self.headersProvider = headersProvider

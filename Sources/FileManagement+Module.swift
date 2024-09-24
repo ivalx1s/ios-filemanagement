@@ -5,15 +5,20 @@ import Relux
 extension FileManagement {
     @MainActor
     public final class Module: Relux.Module {
+        public let states: [any Relux.State]
+        public let uistates: [any Relux.Presentation.StatePresenting]
+        public let sagas: [any Relux.Saga]
+        public let routers: [any Relux.Navigation.RouterProtocol]
+
         public let fileSystemManager: IFileSystemManager
-        public let fetcher: IFileManagementFetcher
-        public let service: IFileManagementService
-        
+        public let fetcher: FileManagement.Data.IFetcher
+        public let service: FileManagement.Business.IService
+
         public init(
             fileManager: FileManager = .default,
             rpcClient: IRpcClient,
-            apiHeadersProvider: IFileManagementApiHeadersProvider,
-            errorHandler: IFileManagementErrorHandler
+            apiHeadersProvider: FileManagement.Data.IApiHeadersProvider,
+            errorHandler: FileManagement.Business.IErrorHandler
         ) {
             self.fileSystemManager = FileManagement.Data.FileSystemManager(
                 fileManager: fileManager
@@ -22,23 +27,26 @@ extension FileManagement {
                 client: rpcClient,
                 headersProvider: apiHeadersProvider
             )
+
             self.service = FileManagement.Business.Service(
                 fetcher: fetcher,
                 fileManager: fileSystemManager
             )
             
             let state = FileManagement.Business.State()
+            self.states = [state]
+
             let viewState = FileManagement.UI.ViewState(fileState: state)
-            let saga: IFileManagementSaga = FileManagement.Business.Saga(
+            self.uistates = [viewState]
+
+            self.routers = []
+
+            let saga: FileManagement.Business.ISaga = FileManagement.Business.Saga(
                 fileService: service,
                 errorHandler: errorHandler
             )
-            
-            super.init(
-                states: [state],
-                viewStates: [viewState],
-                sagas: [saga]
-            )
+
+            self.sagas = [saga]
         }
     }
 }

@@ -3,7 +3,7 @@ import Relux
 
 extension FileManagement.UI {
     @MainActor
-    public class ViewState: ReluxViewState {
+    public class ViewState: ObservableObject, Relux.Presentation.StatePresenting {
         public typealias RemoteURL = FileManagement.Business.Model.RemoteURL
         public typealias LocalURL = FileManagement.Business.Model.LocalURL
         public typealias LoadingState = FileManagement.Business.Model.LoadingState

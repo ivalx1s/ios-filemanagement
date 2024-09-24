@@ -1,11 +1,13 @@
 import Foundation
 
-public protocol IFileManagementService {
-    func getFileContent(
-        from remoteUrl: FileManagement.Business.Model.RemoteURL,
-        with cachePolicy: FileManagement.Business.Model.CachePolicy,
-        apiProtected: Bool
-    ) async -> Result<FileManagement.Business.Model.LocalURL, FileManagement.Business.Err>
+extension FileManagement.Business {
+    public protocol IService {
+        func getFileContent(
+            from remoteUrl: FileManagement.Business.Model.RemoteURL,
+            with cachePolicy: FileManagement.Business.Model.CachePolicy,
+            apiProtected: Bool
+        ) async -> Result<FileManagement.Business.Model.LocalURL, FileManagement.Business.Err>
+    }
 }
 
 extension FileManagement.Business {
@@ -15,12 +17,12 @@ extension FileManagement.Business {
         public typealias LocalURL = FileManagement.Business.Model.LocalURL
         public typealias Err = FileManagement.Business.Err
 
-        private let fetcher: IFileManagementFetcher
+        private let fetcher: FileManagement.Data.IFetcher
         private let fileManager: IFileSystemManager
         private let cacheDestination: FileManager.SearchPathDirectory = .documentDirectory
 
         public init(
-            fetcher: IFileManagementFetcher,
+            fetcher: FileManagement.Data.IFetcher,
             fileManager: IFileSystemManager
         ) {
             self.fetcher = fetcher
@@ -29,7 +31,7 @@ extension FileManagement.Business {
     }
 }
 
-extension FileManagement.Business.Service: IFileManagementService {
+extension FileManagement.Business.Service: FileManagement.Business.IService {
     public func getFileContent(from remoteUrl: RemoteURL, with cachePolicy: CachePolicy, apiProtected: Bool) async -> Result<LocalURL, Err> {
         switch cachePolicy {
         case .never:

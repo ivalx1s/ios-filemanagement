@@ -1,16 +1,18 @@
 import Foundation
 import Relux
 
-public protocol IFileManagementSaga: ReluxSaga {}
+extension FileManagement.Business {
+    public protocol ISaga: Relux.Saga {}
+}
 
 extension FileManagement.Business {
     public actor Saga {
-        private let fileService: IFileManagementService
-        private let errorHandler: IFileManagementErrorHandler
+        private let fileService: FileManagement.Business.IService
+        private let errorHandler: FileManagement.Business.IErrorHandler
 
         public init(
-            fileService: IFileManagementService,
-            errorHandler: IFileManagementErrorHandler
+            fileService: FileManagement.Business.IService,
+            errorHandler: FileManagement.Business.IErrorHandler
         ) {
             self.fileService = fileService
             self.errorHandler = errorHandler
@@ -18,8 +20,8 @@ extension FileManagement.Business {
     }
 }
 
-extension FileManagement.Business.Saga: IFileManagementSaga {
-    public func apply(_ effect: ReluxEffect) async {
+extension FileManagement.Business.Saga: FileManagement.Business.ISaga {
+    public func apply(_ effect: Relux.Effect) async {
         switch effect as? FileManagement.Business.Effect {
         case let .obtainUnprotectedFile(fromUrl, cachePolicy):
             await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: false)
