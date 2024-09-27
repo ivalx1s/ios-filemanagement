@@ -23,3 +23,7 @@ extension FileManagement.Business.Model.CachePolicy {
         }
     }
 }
+
+
+extension FileManagement.Business.Model.CachePolicy: Sendable {}
+extension FileManagement.Business.Model.CachePolicy.PolicyCadence: Sendable {}

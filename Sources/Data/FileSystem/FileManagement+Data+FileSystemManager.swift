@@ -40,6 +40,7 @@ public protocol IFileSystemManager {
 
     func getFromResources(fileName: String, fileExtension: String) throws -> Data
 
+    func cleanCache(for directory: FileManager.SearchPathDirectory)
     func cleanCache()
 
     func getFileDate(path: String) -> Date?
@@ -176,8 +177,8 @@ extension FileManagement.Data {
             }
         }
 
-        public func cleanCache(){
-            let cacheURL =  FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        public func cleanCache(for directory: FileManager.SearchPathDirectory) {
+            let cacheURL =  FileManager.default.urls(for: directory, in: .userDomainMask).first!
             let fileManager = FileManager.default
             do {
                 let directoryContents = try? FileManager.default.contentsOfDirectory( at: cacheURL, includingPropertiesForKeys: nil, options: [])
@@ -190,6 +191,10 @@ extension FileManagement.Data {
                     }
                 }
             }
+        }
+
+        public func cleanCache() {
+            self.cleanCache(for: .cachesDirectory)
         }
 
         public func getFileDate(url: URL) -> Date? {

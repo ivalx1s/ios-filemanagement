@@ -7,6 +7,9 @@ extension FileManagement.Business {
             with cachePolicy: FileManagement.Business.Model.CachePolicy,
             apiProtected: Bool
         ) async -> Result<FileManagement.Business.Model.LocalURL, FileManagement.Business.Err>
+
+        func cleanup(searchPathDestination: FileManager.SearchPathDirectory) async
+        func cleanup() async
     }
 }
 
@@ -19,14 +22,16 @@ extension FileManagement.Business {
 
         private let fetcher: FileManagement.Data.IFetcher
         private let fileManager: IFileSystemManager
-        private let cacheDestination: FileManager.SearchPathDirectory = .documentDirectory
+        private let defaultCacheDestination: FileManager.SearchPathDirectory
 
         public init(
             fetcher: FileManagement.Data.IFetcher,
-            fileManager: IFileSystemManager
+            fileManager: IFileSystemManager,
+            defaultCacheDestination: FileManager.SearchPathDirectory = .cachesDirectory
         ) {
             self.fetcher = fetcher
             self.fileManager = fileManager
+            self.defaultCacheDestination = defaultCacheDestination
         }
     }
 }
@@ -46,6 +51,14 @@ extension FileManagement.Business.Service: FileManagement.Business.IService {
         case .always:
             return await obtainWithAlwaysCachePolicy(from: remoteUrl, apiProtected: apiProtected)
         }
+    }
+
+    public func cleanup(searchPathDestination: FileManager.SearchPathDirectory) async {
+        fileManager.cleanCache(for: searchPathDestination)
+    }
+
+    public func cleanup() async {
+        await self.cleanup(searchPathDestination: defaultCacheDestination)
     }
 }
 
@@ -123,7 +136,7 @@ extension FileManagement.Business.Service {
     }
 
     private func fetchFromLocal(from remoteUrl: RemoteURL) async -> LocalURL? {
-        let path = fileManager.getFileLocationUrl(fileNameWithExtension: remoteUrl.asFileName, destination: cacheDestination)
+        let path = fileManager.getFileLocationUrl(fileNameWithExtension: remoteUrl.asFileName, destination: defaultCacheDestination)
         switch fileManager.exists(url: path) {
         case let .some(url):
             return url
@@ -139,7 +152,7 @@ extension FileManagement.Business.Service {
 
         switch await result{
         case let .success(data):
-            switch fileManager.createOrReplace(data: data, fileNameWithExtension: remoteUrl.asFileName, destination: cacheDestination) {
+                switch fileManager.createOrReplace(data: data, fileNameWithExtension: remoteUrl.asFileName, destination: defaultCacheDestination) {
             case let .success(url): return .success(url)
             case let .failure(err): return .failure(.loadFailed(cause: err))
             }

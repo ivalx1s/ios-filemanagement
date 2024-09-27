@@ -16,6 +16,7 @@ extension FileManagement {
 
         public init(
             fileManager: FileManager = .default,
+            defaultCacheDestination: FileManager.SearchPathDirectory = .cachesDirectory,
             rpcClient: IRpcClient,
             apiHeadersProvider: FileManagement.Data.IApiHeadersProvider,
             errorHandler: FileManagement.Business.IErrorHandler
@@ -30,9 +31,10 @@ extension FileManagement {
 
             self.service = FileManagement.Business.Service(
                 fetcher: fetcher,
-                fileManager: fileSystemManager
+                fileManager: fileSystemManager,
+                defaultCacheDestination: defaultCacheDestination
             )
-            
+
             let state = FileManagement.Business.State()
             self.states = [state]
 

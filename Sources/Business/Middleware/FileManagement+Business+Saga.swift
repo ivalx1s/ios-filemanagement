@@ -23,12 +23,14 @@ extension FileManagement.Business {
 extension FileManagement.Business.Saga: FileManagement.Business.ISaga {
     public func apply(_ effect: Relux.Effect) async {
         switch effect as? FileManagement.Business.Effect {
-        case let .obtainUnprotectedFile(fromUrl, cachePolicy):
-            await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: false)
-        case let .obtainProtectedFile(fromUrl, cachePolicy):
-            await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: true)
-        case .none:
-            break
+            case let .obtainUnprotectedFile(fromUrl, cachePolicy):
+                await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: false)
+            case let .obtainProtectedFile(fromUrl, cachePolicy):
+                await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: true)
+            case let .cleanup(directory):
+                await cleanup(directory)
+            case .none:
+                break
         }
     }
 }
@@ -45,6 +47,15 @@ extension FileManagement.Business.Saga {
             await actions(.concurrently) {
                 FileManagement.Business.Action.fileLoadFailed(remoteUrl: url, err: err)
             }
+        }
+    }
+
+    private func cleanup(_ directory: FileManager.SearchPathDirectory?) async {
+        switch directory {
+            case let .some(directory):
+                await fileService.cleanup(searchPathDestination: directory)
+            case .none:
+                await fileService.cleanup()
         }
     }
 }
