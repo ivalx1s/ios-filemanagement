@@ -41,12 +41,14 @@ extension FileManagement.UI {
             AsyncImage(url: url) { phase in
                 switch phase {
                     case .empty: placeholderView()
-                    case let .success(img): img.resizable()
+                    case let .success(img):
+                        img
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
                     case .failure: errorStateView()
                     @unknown default: ProgressView()
                 }
             }
-            .aspectRatio(contentMode: .fit)
         }
     }
 }
