@@ -8,17 +8,20 @@ extension FileManagement.UI {
 
         private let url: RemoteURL
         private let protectionType: ProtectionType
+        private let cachePolicy: FileManagement.Business.Model.CachePolicy
         private let placeholderView: () -> PlaceholderView
         private let errorStateView: () -> ErrorStateView
 
         public init(
             url: RemoteURL,
             protectionType: ProtectionType,
+            cachePolicy: FileManagement.Business.Model.CachePolicy = .always,
             @ViewBuilder placeholderView: @escaping () -> PlaceholderView = { EmptyView() },
             @ViewBuilder errorStateView: @escaping() -> ErrorStateView = { EmptyView() }
         ) {
             self.url = url
             self.protectionType = protectionType
+            self.cachePolicy = cachePolicy
             self.placeholderView = placeholderView
             self.errorStateView = errorStateView
         }
@@ -59,11 +62,11 @@ extension FileManagement.UI.ImageContainer {
             switch protectionType {
             case .protected:
                 await action {
-                    FileManagement.Business.Effect.obtainProtectedFile(fromUrl: url)
+                    FileManagement.Business.Effect.obtainProtectedFile(fromUrl: url, cachePolicy: cachePolicy)
                 }
             case .unprotected:
                 await action {
-                    FileManagement.Business.Effect.obtainUnprotectedFile(fromUrl: url)
+                    FileManagement.Business.Effect.obtainUnprotectedFile(fromUrl: url, cachePolicy: cachePolicy)
                 }
             }
         }
