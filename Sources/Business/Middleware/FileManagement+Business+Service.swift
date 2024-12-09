@@ -118,7 +118,7 @@ extension FileManagement.Business.Service {
     }
 
     private func isExpired(fileDate: Date, currentDate: Date, cadence: CachePolicy.PolicyCadence) -> Bool {
-        let cadenceValue = cadence.value.asInt
+        let cadenceValue = cadence.value.asInt()
         switch cadence.type {
         case .years:
             return fileDate < currentDate.add(years: -cadenceValue)
