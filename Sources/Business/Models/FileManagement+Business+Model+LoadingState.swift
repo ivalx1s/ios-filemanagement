@@ -1,7 +1,7 @@
 import Foundation
 
 extension FileManagement.Business.Model {
-    public enum LoadingState {
+    public enum LoadingState: Sendable {
         case loaded(localUrl: LocalURL)
         case failed(err: FileManagement.Business.Err)
     }

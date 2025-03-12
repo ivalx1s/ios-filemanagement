@@ -2,7 +2,7 @@ import Foundation
 import HttpClient
 
 extension FileManagement.Data {
-    public protocol IFetcher {
+    public protocol IFetcher: Sendable {
         func loadUnprotectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
         func loadProtectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
     }

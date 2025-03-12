@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol IFileSystemManager {
+public protocol IFileSystemManager: Sendable {
 
     func createOrReplace(
         data: Data,
@@ -52,7 +52,7 @@ public protocol IFileSystemManager {
 
 
 extension FileManagement.Data {
-    public class FileSystemManager: IFileSystemManager {
+    public class FileSystemManager: IFileSystemManager, @unchecked Sendable {
         private let fileManager: FileManager
 
         public init(
