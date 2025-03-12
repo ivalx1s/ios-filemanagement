@@ -1,7 +1,7 @@
 import Foundation
 
 extension FileManagement.Business {
-    public protocol IService {
+    public protocol IService: Sendable {
         func getFileContent(
             from remoteUrl: FileManagement.Business.Model.RemoteURL,
             with cachePolicy: FileManagement.Business.Model.CachePolicy,
