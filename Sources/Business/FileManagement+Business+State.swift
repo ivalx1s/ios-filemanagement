@@ -2,7 +2,7 @@ import Foundation
 import Relux
 
 extension FileManagement.Business {
-    public actor State: Relux.State {
+    public final class State: Relux.HybridState, ObservableObject {
         @Published public var localFiles: [Model.RemoteURL: Model.LoadingState] = [:]
 
         public init() {}

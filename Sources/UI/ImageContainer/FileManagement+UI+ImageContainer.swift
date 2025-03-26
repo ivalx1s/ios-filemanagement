@@ -4,7 +4,7 @@ import Relux
 extension FileManagement.UI {
     public struct ImageContainer<PlaceholderView: View, ErrorStateView: View>: View {
         public typealias RemoteURL = FileManagement.Business.Model.RemoteURL
-        @EnvironmentObject private var fileState: FileManagement.UI.ViewState
+        @EnvironmentObject private var fileState: FileManagement.Business.State
 
         private let url: RemoteURL
         private let protectionType: ProtectionType
