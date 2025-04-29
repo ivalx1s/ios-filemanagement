@@ -15,7 +15,7 @@ extension FileManagement {
         public init(
             fileManager: FileManager = .default,
             defaultCacheDestination: FileManager.SearchPathDirectory = .cachesDirectory,
-            rpcClient: IRpcClient,
+            rpcClient: IRpcAsyncClient,
             apiHeadersProvider: FileManagement.Data.IApiHeadersProvider,
             errorHandler: FileManagement.Business.IErrorHandler
         ) {

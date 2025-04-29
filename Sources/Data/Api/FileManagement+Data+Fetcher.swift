@@ -11,13 +11,13 @@ extension FileManagement.Data {
 extension FileManagement.Data {
     public actor Fetcher: FileManagement.Data.IFetcher {
         public typealias Err = FileManagement.Business.Err
-        private let client: IRpcClient
+        private let client: IRpcAsyncClient
         private let headersProvider: FileManagement.Data.IApiHeadersProvider
         private let encoder: JSONEncoder = .init()
         private let decoder: JSONDecoder = .init()
 
         public init(
-            client: IRpcClient,
+            client: IRpcAsyncClient,
             headersProvider: FileManagement.Data.IApiHeadersProvider
         ) {
             self.client = client
@@ -25,7 +25,7 @@ extension FileManagement.Data {
         }
 
         public func loadUnprotectedFile(from url: URL) async -> Result<Data, Err> {
-            let result = await client.get(url: url, fileID: #fileID, functionName: #function, lineNumber: #line)
+            let result = await client.get(url: url, headers: [:], fileID: #fileID, functionName: #function, lineNumber: #line)
 
             switch result {
             case let .success(response):
