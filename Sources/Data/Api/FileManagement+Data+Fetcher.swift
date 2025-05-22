@@ -3,8 +3,8 @@ import HttpClient
 
 extension FileManagement.Data {
     public protocol IFetcher: Sendable {
-        func loadUnprotectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
-        func loadProtectedFile(from url: URL) async -> Result<Data, FileManagement.Business.Err>
+        func loadUnprotectedFile(from url: URL, retrys: RequestRetrys?) async -> Result<Data, FileManagement.Business.Err>
+        func loadProtectedFile(from url: URL, retrys: RequestRetrys?) async -> Result<Data, FileManagement.Business.Err>
     }
 }
 
@@ -24,8 +24,18 @@ extension FileManagement.Data {
             self.headersProvider = headersProvider
         }
 
-        public func loadUnprotectedFile(from url: URL) async -> Result<Data, Err> {
-            let result = await client.get(url: url, headers: [:], fileID: #fileID, functionName: #function, lineNumber: #line)
+        public func loadUnprotectedFile(
+            from url: URL,
+            retrys: RequestRetrys?
+        ) async -> Result<Data, Err> {
+            let result = await client.get(
+                url: url,
+                headers: [:],
+                retrys: retrys ?? (count: 0, delay: { 0 }),
+                fileID: #fileID,
+                functionName: #function,
+                lineNumber: #line
+            )
 
             switch result {
             case let .success(response):
@@ -41,10 +51,20 @@ extension FileManagement.Data {
             }
         }
 
-        public func loadProtectedFile(from url: URL) async -> Result<Data, Err> {
+        public func loadProtectedFile(
+            from url: URL,
+            retrys: RequestRetrys?
+        ) async -> Result<Data, Err> {
             switch await headersProvider.apiHeaders() {
                 case let .success(headers):
-                    switch await client.get(url: url, headers: headers, fileID: #fileID, functionName: #function, lineNumber: #line) {
+                    switch await client.get(
+                        url: url,
+                        headers: headers,
+                        retrys: retrys ?? (count: 0, delay: { 0 }),
+                        fileID: #fileID,
+                        functionName: #function,
+                        lineNumber: #line
+                    ) {
                         case let .success(response):
                             switch response.data {
                             case let .some(data): return .success(data)
