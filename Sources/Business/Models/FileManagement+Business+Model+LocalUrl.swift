@@ -7,18 +7,12 @@ public extension FileManagement.Business.Model {
 
 public extension FileManagement.Business.Model.RemoteURL {
     var asFileName: String {
-        let allowedCharacters = CharacterSet.alphanumerics.union(.init(charactersIn: "-_"))
-        let pathExtension = self.pathExtension
+        let allowedCharacters = CharacterSet.alphanumerics.union(.init(charactersIn: "-_."))
 
-        let url = pathExtension.isEmpty
-            ? self.absoluteString
-            : String(self.absoluteString.dropLast(pathExtension.count + 1))
-
-        let filteredUrl = url.unicodeScalars
-            .compactMap { allowedCharacters.contains($0) ? String($0) : .none }
+        return self.absoluteString
+            .unicodeScalars
+            .filter(allowedCharacters.contains)
+            .map { String($0) }
             .joined()
-
-        guard pathExtension.isNotEmpty else { return filteredUrl }
-        return "\(filteredUrl).\(pathExtension)"
     }
 }
