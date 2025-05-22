@@ -7,6 +7,12 @@ public extension FileManagement.Business.Model {
 
 public extension FileManagement.Business.Model.RemoteURL {
     var asFileName: String {
-        self.description.toBase64
+        let allowedCharacters = CharacterSet.alphanumerics.union(.init(charactersIn: "-_."))
+
+        return self.absoluteString
+            .unicodeScalars
+            .filter(allowedCharacters.contains)
+            .map { String($0) }
+            .joined()
     }
 }

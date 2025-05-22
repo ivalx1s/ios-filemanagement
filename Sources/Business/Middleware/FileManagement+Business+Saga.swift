@@ -1,5 +1,6 @@
 import Foundation
 import Relux
+import HttpClient
 
 extension FileManagement.Business {
     public protocol ISaga: Relux.Saga {}
@@ -23,10 +24,10 @@ extension FileManagement.Business {
 extension FileManagement.Business.Saga: FileManagement.Business.ISaga {
     public func apply(_ effect: Relux.Effect) async {
         switch effect as? FileManagement.Business.Effect {
-            case let .obtainUnprotectedFile(fromUrl, cachePolicy):
-                await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: false)
-            case let .obtainProtectedFile(fromUrl, cachePolicy):
-                await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: true)
+            case let .obtainUnprotectedFile(fromUrl, cachePolicy, retrys):
+                await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: false, retrys: retrys)
+            case let .obtainProtectedFile(fromUrl, cachePolicy, retrys):
+                await obtainFile(from: fromUrl, with: cachePolicy, apiProtected: true, retrys: retrys)
             case let .cleanup(directory):
                 await cleanup(directory)
             case .none:
@@ -36,8 +37,8 @@ extension FileManagement.Business.Saga: FileManagement.Business.ISaga {
 }
 
 extension FileManagement.Business.Saga {
-    private func obtainFile(from url: URL, with policy: FileManagement.Business.Model.CachePolicy, apiProtected : Bool) async {
-        switch await fileService.getFileContent(from: url, with: policy, apiProtected: apiProtected) {
+    private func obtainFile(from url: URL, with policy: FileManagement.Business.Model.CachePolicy, apiProtected: Bool, retrys: RequestRetrys?) async {
+        switch await fileService.getFileContent(from: url, with: policy, apiProtected: apiProtected, retrys: retrys) {
         case let .success(localUrl):
             await action {
                 FileManagement.Business.Action.fileLoadSucceed(remoteUrl: url, localUrl: localUrl)
